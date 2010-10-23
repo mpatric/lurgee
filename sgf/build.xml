@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+
+<project name="lurgee-sgf" basedir="." default="build">
+	<description>Build file for the strategy game framework. See http://lurgee.net for more information.</description>
+
+	<!-- property file -->
+	<property file="../ant.properties"/>
+
+	<!-- classpath -->
+	<path id="project.classpath">
+	</path>
+	<path id="test.classpath">
+		<pathelement location="${bin-dir}"/>
+		<pathelement location="${junit-jar}"/>
+	</path>
+	
+	<!-- clean target -->
+	<target name="clean" >
+		<delete dir="${bin-dir}"/>
+		<delete dir="${test-bin-dir}"/>
+		<delete dir="${test-results-dir}"/>
+		<delete dir="${doc-dir}"/>
+	</target>
+	
+	<!-- doc target -->
+	<target name="doc">
+		<mkdir dir="${doc-dir}"/>
+		<javadoc destdir="${doc-dir}" access="${javadoc-access}">
+			<sourcepath>
+				<pathelement location="${src-dir}"/>
+			</sourcepath>
+			<package name="net.lurgee.sgf.*"/>
+			<classpath refid="project.classpath"/>
+			<doctitle><![CDATA[${javadoc-title}]]></doctitle>
+    			<bottom><![CDATA[${javadoc-footer-message}]]></bottom>
+		</javadoc>
+		<copy todir="${doc-dir}">
+			<fileset dir="${doc-res-dir}"/>
+		</copy>
+	</target>
+	
+	<!-- alldoc target -->
+	<target name="alldoc">
+		<mkdir dir="${doc-dir}"/>
+		<javadoc destdir="${doc-dir}" access="${javadoc-access}">
+			<sourcepath>
+				<pathelement location="${src-dir}"/>
+				<pathelement location="${test-src-dir}"/>
+			</sourcepath>
+			<package name="net.lurgee.sgf.*"/>
+			<classpath refid="project.classpath"/>
+			<classpath refid="test.classpath"/>
+			<doctitle><![CDATA[${javadoc-title}]]></doctitle>
+    			<bottom><![CDATA[${javadoc-footer-message}]]></bottom>
+		</javadoc>
+		<copy todir="${doc-dir}">
+			<fileset dir="${doc-res-dir}"/>
+		</copy>
+	</target>
+	
+	<!-- compile target -->
+	<target name="compile" >
+		<mkdir dir="${bin-dir}"/>
+		<javac deprecation="on"
+		       srcdir="${src-dir}"
+		       destdir="${bin-dir}"
+		       classpathref="project.classpath"
+		       target="${compile-target}"
+			   source="${compile-source}"
+		       debug="${compile-debug}"/>
+	</target>
+	
+	<!-- compile-tests target -->
+	<target name="compile-tests" depends="compile">
+		<mkdir dir="${test-bin-dir}"/>
+		<javac deprecation="on"
+		       srcdir="${test-src-dir}"
+		       destdir="${test-bin-dir}"
+		       classpathref="test.classpath"
+		       target="${compile-target}"
+			   source="${compile-source}"
+		       debug="${compile-debug}"/>
+	</target>
+	
+	<!-- test target -->
+	<target name="test" depends="compile-tests">
+		<delete dir="${test-results-dir}"/>
+		<mkdir dir="${test-results-dir}"/>
+		<junit haltonfailure="yes">
+			<formatter type="brief" usefile="false"/>
+			<formatter type="xml"/>
+			<classpath>
+				<path refid="test.classpath"/>
+				<pathelement location="${test-bin-dir}"/>
+			</classpath>
+			<batchtest fork="yes" todir="${test-results-dir}">
+				<fileset dir="${test-bin-dir}">
+		  			<include name="**/*Test.class"/>
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+	
+	<!-- build target -->
+	<target name="build" depends="test">
+	</target>
+	
+</project>

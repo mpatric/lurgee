@@ -1,0 +1,119 @@
+<project name="lurgee" basedir="." default="build">
+	<description>Top level build file for all lurgee packages. See http://lurgee.net for more information.</description>
+
+	<!-- property file -->
+	<property file="ant.properties"/>
+
+	<!-- directory paths -->
+	<property name="sgf-dir" location="sgf"/>
+	<property name="common-dir" location="common"/>
+	<property name="reversi-dir" location="reversi"/>
+	<property name="connect4-dir" location="connect4"/>
+	<property name="ninemensmorris-dir" location="ninemensmorris"/>
+	
+	<!-- classpath -->
+	<path id="project.classpath">
+	</path>
+	<path id="test.classpath">
+		<pathelement location="${junit-jar}"/>
+	</path>
+
+	<!-- lurgee-sgf project -->
+	<target name="clean-sgf">
+		<ant antfile="build.xml" dir="${sgf-dir}" target="clean"/>
+ 	</target>
+	<target name="build-sgf">
+		<ant antfile="build.xml" dir="${sgf-dir}" target="build"/>
+ 	</target>
+ 	
+ 	<!-- lurgee-common project -->
+	<target name="clean-common">
+		<ant antfile="build.xml" dir="${common-dir}" target="clean"/>
+ 	</target>
+	<target name="build-common">
+		<ant antfile="build.xml" dir="${common-dir}" target="build"/>
+ 	</target>
+ 	
+ 	<!-- lurgee-reversi project -->
+	<target name="clean-reversi">
+		<ant antfile="build.xml" dir="${reversi-dir}" target="clean"/>
+ 	</target>
+	<target name="build-reversi" depends="build-sgf,build-common">
+		<ant antfile="build.xml" dir="${reversi-dir}" target="build"/>
+ 	</target>
+
+ 	<!-- lurgee-connect4 project -->
+	<target name="clean-connect4">
+		<ant antfile="build.xml" dir="${connect4-dir}" target="clean"/>
+	</target>
+	<target name="build-connect4" depends="build-sgf,build-common">
+		<ant antfile="build.xml" dir="${connect4-dir}" target="build"/>
+	</target>
+	
+	<!-- lurgee-ninemensmorris project -->
+	<target name="clean-ninemensmorris">
+		<ant antfile="build.xml" dir="${ninemensmorris-dir}" target="clean"/>
+	</target>
+	<target name="build-ninemensmorris" depends="build-sgf,build-common">
+		<ant antfile="build.xml" dir="${ninemensmorris-dir}" target="build"/>
+	</target>
+ 	
+ 	<!-- doc target -->
+	<target name="doc" >
+		<mkdir dir="${doc-dir}"/>
+		<javadoc destdir="${doc-dir}" access="${javadoc-access}">
+			<sourcepath>
+				<pathelement location="${sgf-dir}/src"/>
+				<pathelement location="${common-dir}/src"/>
+				<pathelement location="${reversi-dir}/src"/>
+				<pathelement location="${connect4-dir}/src"/>
+				<pathelement location="${ninemensmorris-dir}/src"/>
+			</sourcepath>
+			<package name="net.lurgee.*"/>
+			<doctitle><![CDATA[${javadoc-title}]]></doctitle>
+    			<bottom><![CDATA[${javadoc-footer-message}]]></bottom>
+		</javadoc>
+		<copy todir="${doc-dir}">
+			<fileset dir="${sgf-dir}/doc-res"/>
+		</copy>
+	</target>
+	
+	<!-- alldoc target -->
+	<target name="alldoc" >
+		<mkdir dir="${doc-dir}"/>
+		<javadoc destdir="${doc-dir}" access="${javadoc-access}">
+			<sourcepath>
+				<pathelement location="${sgf-dir}/src"/>
+				<pathelement location="${sgf-dir}/test-src"/>
+				<pathelement location="${common-dir}/src"/>
+				<pathelement location="${reversi-dir}/src"/>
+				<pathelement location="${reversi-dir}/test-src"/>
+				<pathelement location="${connect4-dir}/src"/>
+				<pathelement location="${connect4-dir}/test-src"/>
+				<pathelement location="${ninemensmorris-dir}/src"/>
+				<pathelement location="${ninemensmorris-dir}/test-src"/>
+			</sourcepath>
+			<package name="net.lurgee.*"/>
+			<classpath refid="test.classpath"/>
+			<doctitle><![CDATA[${javadoc-title}]]></doctitle>
+    			<bottom><![CDATA[${javadoc-footer-message}]]></bottom>
+		</javadoc>
+		<copy todir="${doc-dir}">
+			<fileset dir="${sgf-dir}/doc-res"/>
+		</copy>
+	</target>
+ 	
+ 	<!-- clean target -->
+	<target name="clean" depends="clean-sgf,clean-common,clean-reversi,clean-connect4,clean-ninemensmorris">
+		<delete dir="${doc-dir}"/>
+	</target>
+	
+ 	<!-- build target -->
+	<target name="build" depends="build-reversi,build-connect4,build-ninemensmorris">
+	</target>
+	
+	<!-- buildanddoc target -->
+	<target name="buildanddoc" depends="build,doc">
+	</target>
+	
+</project>

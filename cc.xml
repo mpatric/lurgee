@@ -1,0 +1,10 @@
+<project name="lurgee" default="build" basedir=".">
+    <description>Bootstrapper for cruise-control.</description>
+    <target name="build">
+        <exec executable="svn" >
+          <arg line="up"/>
+        </exec>
+        <!-- Call the target that does everything -->
+        <ant antfile="build.xml" target="buildanddoc"/>
+    </target>
+</project>

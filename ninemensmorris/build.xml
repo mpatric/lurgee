@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+
+<project name="lurgee-ninemensmorris" basedir="." default="build">
+	<description>Build file for the ninemensmorris module and applications. See http://lurgee.net for more information.</description>
+
+	<!-- property file -->
+	<property file="../ant.properties"/>
+
+	<!-- directory paths -->
+	<property name="sgf-bin-dir" location="../sgf/bin"/>
+	<property name="sgf-test-bin-dir" location="../sgf/test-bin"/>
+	<property name="common-bin-dir" location="../common/bin"/>
+
+	<!-- classpath -->
+	<path id="project.classpath">
+		<pathelement location="${sgf-bin-dir}"/>
+		<pathelement location="${common-bin-dir}"/>
+	</path>
+	<path id="test.classpath">
+		<pathelement location="${bin-dir}"/>
+		<pathelement location="${sgf-bin-dir}"/>
+		<pathelement location="${sgf-test-bin-dir}"/>
+		<pathelement location="${junit-jar}"/>
+	</path>
+	<path id="run-console-app.classpath">
+		<pathelement location="${sgf-bin-dir}"/>
+		<pathelement location="${common-bin-dir}"/>
+		<pathelement location="${bin-dir}"/>
+	</path>
+	
+	<!-- clean target -->
+	<target name="clean" >
+		<delete dir="${bin-dir}"/>
+		<delete dir="${test-bin-dir}"/>
+		<delete dir="${test-results-dir}"/>
+		<delete dir="${doc-dir}"/>
+		<delete dir="${build-dir}"/>
+		<delete dir="${dist-dir}"/>
+	</target>
+	
+	<!-- doc target -->
+	<target name="doc">
+		<mkdir dir="${doc-dir}"/>
+		<javadoc destdir="${doc-dir}" access="${javadoc-access}">
+			<sourcepath>
+				<pathelement location="${src-dir}"/>
+			</sourcepath>
+			<package name="net.lurgee.ninemensmorris.*"/>
+			<classpath refid="project.classpath"/>
+			<doctitle><![CDATA[${javadoc-title}]]></doctitle>
+    			<bottom><![CDATA[${javadoc-footer-message}]]></bottom>
+		</javadoc>
+	</target>
+	
+	<!-- alldoc target -->
+	<target name="alldoc">
+		<mkdir dir="${doc-dir}"/>
+		<javadoc destdir="${doc-dir}" access="${javadoc-access}">
+			<sourcepath>
+				<pathelement location="${src-dir}"/>
+				<pathelement location="${test-src-dir}"/>
+			</sourcepath>
+			<package name="net.lurgee.ninemensmorris.*"/>
+			<classpath refid="project.classpath"/>
+			<classpath refid="test.classpath"/>
+			<doctitle><![CDATA[${javadoc-title}]]></doctitle>
+    			<bottom><![CDATA[${javadoc-footer-message}]]></bottom>
+		</javadoc>
+	</target>
+	
+	<!-- compile target -->
+	<target name="compile">
+		<mkdir dir="${bin-dir}"/>
+		<javac deprecation="on"
+		       srcdir="${src-dir}"
+		       destdir="${bin-dir}"
+		       classpathref="project.classpath"
+		       target="${compile-target}"
+		       source="${compile-source}"
+		       includes="net/lurgee/ninemensmorris/*"
+		       debug="${compile-debug}"/>
+	</target>
+	
+	<!-- compile-console-app target -->
+	<target name="compile-console-app" depends="compile">
+		<mkdir dir="${bin-dir}"/>
+		<javac deprecation="on"
+		       srcdir="${src-dir}"
+		       destdir="${bin-dir}"
+		       classpathref="project.classpath"
+		       target="${compile-target}"
+                       source="${compile-source}"
+                       includes="net/lurgee/ninemensmorris/*,net/lurgee/ninemensmorris/console/**"
+		       debug="${compile-debug}"/>
+	</target>
+	
+	<!-- compile-applet target -->
+	<target name="compile-applet" depends="compile">
+		<mkdir dir="${bin-dir}"/>
+		<javac deprecation="on"
+		       srcdir="${src-dir}"
+		       destdir="${bin-dir}"
+		       classpathref="project.classpath"
+		       target="${compile-target}"
+		       source="${compile-source}"
+                       includes="net/lurgee/ninemensmorris/*,net/lurgee/ninemensmorris/applet/**"
+		       debug="${compile-debug}"/>
+		<copy todir="${bin-dir}">
+			<fileset dir="${src-dir}">
+				<exclude name="**/*.java"/>
+			</fileset>
+		</copy>
+		<copy todir="${bin-dir}">
+			<fileset dir="${res-dir}"/>
+		</copy>
+	</target>
+	
+	<!-- compile-tests target -->
+	<target name="compile-tests" depends="compile">
+		<mkdir dir="${test-bin-dir}"/>
+		<javac deprecation="on"
+		       srcdir="${test-src-dir}"
+		       destdir="${test-bin-dir}"
+		       classpathref="test.classpath"
+		       target="${compile-target}"
+			   source="${compile-source}"
+		       debug="${compile-debug}"/>
+	</target>
+	
+	<!-- test target -->
+	<target name="test" depends="compile-tests">
+		<delete dir="${test-results-dir}"/>
+		<mkdir dir="${test-results-dir}"/>
+		<junit haltonfailure="yes">
+			<formatter type="brief" usefile="false"/>
+			<formatter type="xml"/>
+			<classpath>
+				<path refid="test.classpath"/>
+				<pathelement location="${test-bin-dir}"/>
+			</classpath>
+			<batchtest fork="yes" todir="${test-results-dir}">
+				<fileset dir="${test-bin-dir}">
+		  			<include name="**/*Test.class"/>
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
+	
+	<!-- build-console-app target -->
+	<target name="build-console-app" depends="test,compile-console-app">
+	</target>
+	
+	<!-- run-console-app target -->
+	<target name="run-console-app" depends="build-console-app">
+		<java classname="net.lurgee.ninemensmorris.console.NineMensMorrisGame"
+		      classpathref="run-console-app.classpath"/>
+	</target>
+	
+	<!-- build-applet target -->
+	<target name="build-applet" depends="test,compile-applet">
+		<mkdir dir="${build-dir}"/>
+		<mkdir dir="${dist-dir}"/>
+		<copy todir="${build-dir}">
+			<fileset dir="${bin-dir}">
+				<exclude name="**/package.html"/>
+				<exclude name="net/lurgee/ninemensmorris/console"/>
+				<exclude name="net/lurgee/ninemensmorris/console/**.*"/>
+			</fileset>
+			<fileset dir="${sgf-bin-dir}">
+				<exclude name="**/package.html"/>
+			</fileset>
+			<fileset dir="${common-bin-dir}">
+				<exclude name="**/package.html"/>
+				<exclude name="net/lurgee/common/console"/>
+				<exclude name="net/lurgee/common/console/**.*"/>
+			</fileset>
+		</copy>
+		<jar destfile="${dist-dir}/${ant.project.name}-applet.jar"
+			basedir="${build-dir}"
+		/>
+		<copy todir="${dist-dir}">
+			<fileset dir="${www-dir}"/>
+		</copy>
+		<delete dir="${build-dir}"/>
+	</target>
+	
+	<!-- build target -->
+	<target name="build" depends="build-console-app,build-applet">
+	</target>
+	
+	<!-- obfuscate target -->
+	<target name="obfuscate" depends="build">
+		<taskdef resource="proguard/ant/task.properties" classpath="${proguard-jar}"/>
+		<proguard overloadaggressively="on" defaultpackage="" allowaccessmodification="on">
+			<injar file="${dist-dir}/${ant.project.name}-applet.jar"/>
+    			<outjar file="${dist-dir}/${ant.project.name}-applet-obfuscated.jar"/>
+    			<libraryjar file="${java.home}/lib/rt.jar"/>
+    			<keep access="public" extends="java.applet.Applet"/>
+		</proguard>
+	</target>
+</project>
